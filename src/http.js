@@ -2,7 +2,7 @@ import axios from 'axios'
 import qs from 'qs'
 import {Message, Loading} from 'element-ui'
 
-axios.defaults.baseURL = 'http://api.ecma8.com/';
+axios.defaults.baseURL = 'http://api.ecma8.com/sss';
 
 let loadinginstace;
 axios.interceptors.request.use(config => {
