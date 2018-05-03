@@ -13,10 +13,22 @@
     width: 100%;
     height: 100%;
   }
-
   #app {
     font-family: 'Avenir', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+
+  }
+  body,#app{
+    height: 100%;
   }
 </style>
+<script>
+  export default {
+    mounted(){
+      this.$http.get(this.api.nav,{params: { 'key': 'value'}}).then((res)=>{
+        console.log(res);
+      })
+    }
+  }
+</script>

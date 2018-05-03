@@ -1,5 +1,12 @@
 const api={
-  nav:'index.php?c=index&a=nav',
-  newsList:'index.php?c=list&a=newsList',
+  'xxx':'不带域名的接口地址',
+  'xxx':'不带域名的接口地址',
+  'xxx':'不带域名的接口地址',
+  'xxx':'不带域名的接口地址',
+  'xxx':'不带域名的接口地址',
+  'xxx':'不带域名的接口地址',
+  'xxx':'不带域名的接口地址',
+  'xxx':'不带域名的接口地址',
+  'xxx':'不带域名的接口地址',
 };
 export default api;
