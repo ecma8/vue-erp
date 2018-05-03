@@ -20,5 +20,13 @@ new Vue({
   components: { App },
   template: '<App/>'
 });
+router.beforeEach((to, from, next) => {
+  if(window.localStorage.getItem('xxx')) {
+    next()
+  } else {
+    next('/login');
+  }
+});
+
 
 

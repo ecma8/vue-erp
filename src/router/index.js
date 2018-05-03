@@ -44,7 +44,8 @@ const Company_add = r => require.ensure([], () => r(require('../pages/Company_ad
 export default new Router({
   routes: [
     {
-      path: '/',
+      path: '/login',
+      name: 'login',
       component: login, //登陆
     },
     {
