@@ -1,9 +1,13 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-Vue.use(Router);
+import App from '../App'
+import echarts from 'echarts';
 
-//require路由按需加载
-const main = r => require.ensure([], () => r(require('../components/home')), 'main');
+Vue.use(Router);
+Vue.prototype.$echarts = echarts 
+
+//require路由按需加载 
+const main = r => require.ensure([], () => r(require('../pages/Main')), 'main');
 const login = r => require.ensure([], () => r(require('../pages/Login')), 'login');
 const registered = r => require.ensure([], () => r(require('../pages/Zhuce')), 'registered');
 
@@ -40,100 +44,102 @@ const Cd_User_edit = r => require.ensure([], () => r(require('../pages/commodity
 //out
 const Warehouse = r => require.ensure([], () => r(require('../pages/Warehouse')), 'Warehouse');
 const Company_add = r => require.ensure([], () => r(require('../pages/Company_add')), 'Company_add');
+const Message = r => require.ensure([], () => r(require('../pages/Message')), 'Message');
 
 export default new Router({
-  routes: [
-    {
-      path: '/login',
-      name: 'login',
-      component: login, //登陆
-    },
-    {
-      path: '/registered',
-      component: registered, //注册
-    },
-    {
-      path: '/main',
-      component: main, //
-      redirect:'/main/G_user_list',
-      children: [
+    routes: [
         {
-          path: 'G_user_list',
-          component: G_user_list,
-        },{
-          path: 'G_user_edit',
-          component: G_user_edit,
-        },{
-          path: 'G_company_list',
-          component: G_company_list,
-        },{
-          path: 'G_company_edit',
-          component: G_company_edit,
-        },{
-          path: 'G_company_add',
-          component: G_company_add,
-        },{
-          path: 'G_Rechange_list',
-          component: G_Rechange_list,
-        },{
-          path: 'G_order_list',
-          component: G_order_list,
-        },{
-          path: 'G_order_edit',
-          component: G_order_edit,
-        },{
-          path: 'G_warehouse',
-          component: G_warehouse,
-        },{
-          path: 'C_right_Amazon',
-          component: C_right_Amazon,
-        },{
-          path: 'C_rechange',
-          component: C_rechange,
-        },{
-          path: 'C_Finance',
-          component: C_Finance,
-        },{
-          path: 'C_staff',
-          component: C_staff,
-        },{
-          path: 'C_Creport',
-          component: C_Creport,
-        },{
-          path: 'C_Preport',
-          component: C_Preport,
-        },{
-          path: 'Cd_product_list',
-          component: Cd_product_list,
-        },{
-          path: 'Cd_product_edit',
-          component: Cd_product_edit,
-        },{
-          path: 'Cd_product_add',
-          component: Cd_product_add,
-        },{
-          path: 'Cd_order_list',
-          component: Cd_order_list,
-        },{
-          path: 'Cd_order_edit',
-          component: Cd_order_edit,
-        },{
-          path: 'Cd_order_add',
-          component: Cd_order_add,
-        },{
-          path: 'Cd_Preport',
-          component: Cd_Preport,
-        },{
-          path: 'Cd_User_edit',
-          component: Cd_User_edit,
-        },{
-          path: 'Warehouse',
-          component: Warehouse,
-        },{
-          path: 'Company_add',
-          component: Company_add,
+          path: '/',
+          component: login, //登陆
+        },
+        {
+            path: '/registered',
+            component: registered, //注册
+        },
+        {
+            path: '/main',
+            component: main, //
+            children: [
+                {
+                   path: 'G_user_list', 
+                   component: G_user_list, 
+                },{
+                   path: 'G_user_edit', 
+                   component: G_user_edit, 
+                },{
+                   path: 'G_company_list', 
+                   component: G_company_list, 
+                },{
+                   path: 'G_company_edit', 
+                   component: G_company_edit, 
+                },{
+                   path: 'G_company_add', 
+                   component: G_company_add, 
+                },{
+                   path: 'G_Rechange_list', 
+                   component: G_Rechange_list, 
+                },{
+                   path: 'G_order_list', 
+                   component: G_order_list, 
+                },{
+                   path: 'G_order_edit', 
+                   component: G_order_edit, 
+                },{
+                   path: 'G_warehouse', 
+                   component: G_warehouse, 
+                },{
+                   path: 'C_right_Amazon', 
+                   component: C_right_Amazon, 
+                },{
+                   path: 'C_rechange', 
+                   component: C_rechange, 
+                },{
+                   path: 'C_Finance', 
+                   component: C_Finance, 
+                },{
+                   path: 'C_staff', 
+                   component: C_staff, 
+                },{
+                   path: 'C_Creport', 
+                   component: C_Creport, 
+                },{
+                   path: 'C_Preport', 
+                   component: C_Preport, 
+                },{
+                   path: 'Cd_product_list', 
+                   component: Cd_product_list, 
+                },{
+                   path: 'Cd_product_edit', 
+                   component: Cd_product_edit, 
+                },{
+                   path: 'Cd_product_add', 
+                   component: Cd_product_add, 
+                },{
+                   path: 'Cd_order_list', 
+                   component: Cd_order_list, 
+                },{
+                   path: 'Cd_order_edit', 
+                   component: Cd_order_edit, 
+                },{
+                   path: 'Cd_order_add', 
+                   component: Cd_order_add, 
+                },{
+                   path: 'Cd_Preport', 
+                   component: Cd_Preport, 
+                },{
+                   path: 'Cd_User_edit', 
+                   component: Cd_User_edit, 
+                },{
+                   path: 'Warehouse', 
+                   component: Warehouse, 
+                },{
+                   path: 'Company_add', 
+                   component: Company_add, 
+                },{
+                   path: 'Message', 
+                   component: Message, 
+                }
+            ]
         }
-      ]
-    }
-  ]
+    ]
 })

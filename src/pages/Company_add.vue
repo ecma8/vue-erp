@@ -84,15 +84,22 @@
             var tk = localStorage.getItem("token");
             var uid = localStorage.getItem("uid");
 
-            this.$http({
-              url:'http://39.106.9.139/apis/restful/add/_company/company',
-              method:'POST',
-              headers: {
-                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-              },
-              data:Qs.stringify({
-                token:tk,
+            this.$http.post(this.api.company_add,{
+              token:tk,
+              user_id:uid,
+              name:this.form.cname,
+              regmoney:this.form.cregmoney,
+              reg_address:this.form.creg_address,
+              legalp:this.form.clegalp,
+              range:this.form.crange,
+              work_address:this.form.cwork_address,
+              tel:this.form.ctel
+            }).then((res)=>{
+              this.cid = res.id;
+              this.$http.post(this.api.user_add_company,{
+                user_token:tk,
                 user_id:uid,
+                company_id:this.cid,
                 name:this.form.cname,
                 regmoney:this.form.cregmoney,
                 reg_address:this.form.creg_address,
@@ -100,50 +107,77 @@
                 range:this.form.crange,
                 work_address:this.form.cwork_address,
                 tel:this.form.ctel
+              }).then((res)=>{
+                this.$message({
+                  message: '公司添加成功',
+                  type: 'success'
+                });
+                router.push({
+                  path:'/main/C_staff'
+                })
               })
-            }).then(
-              res =>{
-                // console.log(res);
-                if(res.data.is_success){
-                  this.cid = res.data.id;
+            })
 
-                  this.$http({
-                    url:'http://39.106.9.139/apis/restful/add/_account/user_company',
-                    method:'POST',
-                    headers: {
-                      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                    },
-                    data:Qs.stringify({
-                      user_token:tk,
-                      user_id:uid,
-                      company_id:this.cid,
-                      name:this.form.cname,
-                      regmoney:this.form.cregmoney,
-                      reg_address:this.form.creg_address,
-                      legalp:this.form.clegalp,
-                      range:this.form.crange,
-                      work_address:this.form.cwork_address,
-                      tel:this.form.ctel
-                    })
-                  }).then(
-                    res =>{
-                      // console.log(res);
-                      if(res.data.is_success){
-                        this.$message({
-                          message: '公司添加成功',
-                          type: 'success'
-                        });
-                        router.push({
-                          path:'/main/C_staff'
-                        })
-                      }
-                    })
-                }else{
-                  this.$message.error(res.data.message);
-                }
+            // this.$http({
+            //   url:'http://39.106.9.139/apis/restful/add/_company/company',
+            //   method:'POST',
+            //   headers: {
+            //     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            //   },
+            //   data:Qs.stringify({
+            //     token:tk,
+            //     user_id:uid,
+            //     name:this.form.cname,
+            //     regmoney:this.form.cregmoney,
+            //     reg_address:this.form.creg_address,
+            //     legalp:this.form.clegalp,
+            //     range:this.form.crange,
+            //     work_address:this.form.cwork_address,
+            //     tel:this.form.ctel
+            //   })
+            // }).then(
+            //   res =>{
+            //     // console.log(res);
+            //     if(res.data.is_success){
+            //       this.cid = res.data.id;
+
+            //       this.$http({
+            //         url:'http://39.106.9.139/apis/restful/add/_account/user_company',
+            //         method:'POST',
+            //         headers: {
+            //           'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            //         },
+            //         data:Qs.stringify({
+            //           user_token:tk,
+            //           user_id:uid,
+            //           company_id:this.cid,
+            //           name:this.form.cname,
+            //           regmoney:this.form.cregmoney,
+            //           reg_address:this.form.creg_address,
+            //           legalp:this.form.clegalp,
+            //           range:this.form.crange,
+            //           work_address:this.form.cwork_address,
+            //           tel:this.form.ctel
+            //         })
+            //       }).then(
+            //         res =>{
+            //           // console.log(res);
+            //           if(res.data.is_success){
+            //             this.$message({
+            //               message: '公司添加成功',
+            //               type: 'success'
+            //             });
+            //             router.push({
+            //               path:'/main/C_staff'
+            //             })
+            //           }
+            //         })
+            //     }else{
+            //       this.$message.error(res.data.message);
+            //     }
                 
                 
-              })
+            //   })
           },
           handleRemove(file, fileList) {
             console.log(file, fileList);

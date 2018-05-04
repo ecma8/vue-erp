@@ -121,21 +121,16 @@
           getcompanylist(){
             var tk = localStorage.getItem("token")
 
-            this.$http({
-                url:'http://39.106.9.139/apis/restful/list/_company/company',
-                method:'POST',
-                headers: {
-                  'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                },
-                data:Qs.stringify({user_token:tk})
-              }).then(
-                res =>{
+            this.$http.post(this.api.company_list,
+            {
+              user_token:tk
+            }).then((res)=>{
+              // console.log(res);
+              this.data = res.values;
+              this.data2 = this.data.concat(); 
+              this.totalItems = res.values.length;
+            })
 
-                  this.data = res.data.values;
-                  this.data2 = this.data.concat(); 
-                  this.totalItems = res.data.values.length;
-                }
-              );
 
           },
           currentChangePage(list) {

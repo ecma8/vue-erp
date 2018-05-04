@@ -43,7 +43,13 @@
     </el-table-column>
     <el-table-column
       prop="idcardnum"
-      label="身份证"
+      label="身份证号"
+      sortable
+      >
+    </el-table-column>
+    <el-table-column
+      prop="status"
+      label="身份信息"
       sortable
       >
     </el-table-column>
@@ -95,20 +101,16 @@
           getuserlist(){
             
             var tk = localStorage.getItem("token")
-            this.$http({
-                url:'http://39.106.9.139/apis/restful/list/_account/user',
-                method:'POST',
-                headers: {
-                  'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                },
-                data:Qs.stringify({user_token:tk})
-              }).then(
-                res =>{
-                  // console.log(res);
-                  this.data = res.data.values;
-                  this.data2 = this.data.concat(); 
-                  this.totalItems = res.data.values.length;
-                })
+            this.$http.post(this.api.user_list,
+            {
+              user_token:tk
+            }).then((res)=>{
+              // console.log(res);
+              this.data = res.values;
+              this.data2 = this.data.concat(); 
+              this.totalItems = res.values.length;
+            })
+
           },
           currentChangePage(list) {
             // console.log("1")

@@ -23,6 +23,10 @@
       <el-form-item label="身份证号">
         <el-input v-model="form.num"></el-input>
       </el-form-item>
+      <el-form-item label="身份">
+        <el-radio v-model="form.status" label="staff" border>我是员工</el-radio>
+        <el-radio v-model="form.status" label="boss" border>我是老板</el-radio>
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="onSubmit">注册</el-button>
       </el-form-item>
@@ -43,79 +47,128 @@
                   tel:"",
                   num:"",
                   name:"",
-                  uid:""
+                  uid:"",
+                  status:'staff'
                 }
             }
         },
         methods:{  
+            setCookie: function (cname, cvalue, exdays) {
+                var d = new Date();
+                d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+                var expires = "expires=" + d.toUTCString();
+                console.info(cname + "=" + cvalue + "; " + expires);
+                document.cookie = cname + "=" + cvalue + "; " + expires;
+                console.info(document.cookie);
+            },
             onSubmit(){
-                this.$http({
-                  url:'http://39.106.9.139/apis/v1806/user/add',
-                  method:'POST',
-                  headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                  },
-                  data:Qs.stringify({
-                    username:this.form.username,
-                    password:this.form.password
-                  })
-                }).then(
-                  res =>{
-                    // console.log(res)
-                    if(res.data.is_success){
-                      // console.log("注册成功");
-                      this.$http({
-                          url:'http://39.106.9.139/apis/v1806/user/login',
-                          method:'POST',
-                          headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                          },
-                          data:Qs.stringify({
-                            username:this.form.username,
-                            password:this.form.password
-                          })
-                        }).then(
-                        res =>{
-                          console.log(res);
-                          if(res.data.is_success){
-                            // console.log("登录成功");
-                            localStorage.token = res.data.token;
-                            this.uid = res.data.user.id;
-                            localStorage.uid = res.data.user.id;
-                            this.$http({
-                                url:'http://39.106.9.139/apis/restful/set/_account/user('+this.uid+')',
-                                method:'POST',
-                                headers: {
-                                  'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                                },
-                                data:Qs.stringify({
-                                  user_token:res.data.token,
-                                  name:this.form.name,
-                                  tel:this.form.tel,
-                                  idcardnum:this.form.num
-                                })
-                              }).then(
-                                res =>{
-                                  // console.log(res);
-                                  if(res.data.is_success){
-                                    // console.log("信息设置完毕");
-                                    this.$message.success('注册成功,正在为您跳转');
-                                    router.push({
-                                      path:'/main/G_user_list'
-                                    })
-                                  }
-                                }
-                              );
+              //注册
+              this.$http.post(this.api.user_add,{
+                username:this.form.username,
+                password:this.form.password
+              }).then((res)=>{
+                //登录
+                this.$http.post(this.api.login,{
+                  username:this.form.username,
+                  password:this.form.password
+                }).then((res)=>{
+                  // console.log(res);
+                  localStorage.token = res.token;
+                  localStorage.uid = res.user.id;
+                  this.setCookie("token",res.token,1/24);
+                  this.setCookie("uid",res.user.id,1/24);
 
-                          }else{
-                            console.log("登录失败");
+                  this.uid = res.user.id;
+                  //添加用户信息
+                  this.$http.post(this.api.user_infor_set+'('+this.uid+')',{
+                    user_token:res.token,
+                    name:this.form.name,
+                    tel:this.form.tel,
+                    idcardnum:this.form.num,
+                    status:this.form.status
+                  }).then((res)=>{
+                    
 
-                          }
+                    
+                      localStorage.status = this.form.status;
+                      
+                      this.$message.success('注册成功,正在为您跳转');
+                      router.push({
+                        path:'/main/Cd_product_list'
                       })
-                    }else{
-                      this.$message.error(res.data.message);
-                    }
+                    
+
+                    
+                  })
                 })
+              })
+                // this.$http({
+                //   url:'http://39.106.9.139/apis/v1806/user/add',
+                //   method:'POST',
+                //   headers: {
+                //     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                //   },
+                //   data:Qs.stringify({
+                //     username:this.form.username,
+                //     password:this.form.password
+                //   })
+                // }).then(
+                //   res =>{
+                    
+                //     if(res.data.is_success){
+                      
+                //       this.$http({
+                //           url:'http://39.106.9.139/apis/v1806/user/login',
+                //           method:'POST',
+                //           headers: {
+                //             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                //           },
+                //           data:Qs.stringify({
+                //             username:this.form.username,
+                //             password:this.form.password
+                //           })
+                //         }).then(
+                //         res =>{
+                //           console.log(res);
+                //           if(res.data.is_success){
+                            
+                //             localStorage.token = res.data.token;
+                //             this.uid = res.data.user.id;
+                //             localStorage.uid = res.data.user.id;
+                //             this.$http({
+                //                 url:'http://39.106.9.139/apis/restful/set/_account/user('+this.uid+')',
+                //                 method:'POST',
+                //                 headers: {
+                //                   'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                //                 },
+                //                 data:Qs.stringify({
+                //                   user_token:res.data.token,
+                //                   name:this.form.name,
+                //                   tel:this.form.tel,
+                //                   idcardnum:this.form.num
+                //                 })
+                //               }).then(
+                //                 res =>{
+                                  
+                //                   if(res.data.is_success){
+                                    
+                //                     this.$message.success('注册成功,正在为您跳转');
+                //                     router.push({
+                //                       path:'/main/G_user_list'
+                //                     })
+                //                   }
+                //                 }
+                //               );
+
+                //           }else{
+                //             console.log("登录失败");
+
+                //           }
+                //       })
+                //     }else{
+                //       this.$message.error(res.data.message);
+                //     }
+                // })
             }
         }
     }

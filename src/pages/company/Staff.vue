@@ -57,101 +57,65 @@
                 var tk = localStorage.getItem("token");
                 var uid = localStorage.getItem("uid");
 
-                this.$http({
-                    url:'http://39.106.9.139/apis/restful/list/_account/user_company',
-                    method:'POST',
-                    headers: {
-                      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                    },
-                    data:Qs.stringify({
-                      user_token:tk,
-                      user_query:"user_id=='"+uid+"'"
-                    })
-                  }).then(
-                    res =>{
-                      // console.log(res);
-                      if(res.data.is_success){
-                        for(var i = 0;i < res.data.values.length; i++){
-                          if(res.data.values[i].name == this.companyname){
-                            this.cid = res.data.values[i].company_id;
-
-                            this.$http({
-                              url:'http://39.106.9.139/apis/restful/get/_company/company('+this.cid+')?',
-                              method:'POST',
-                              headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                              },
-                              data:Qs.stringify({
-                                
-                              })
-                            }).then(
-                              res =>{
-                                // console.log(res);
-                                if(res.data.value.ctree != null){
-                                  this.setTree = JSON.parse(res.data.value.ctree);
-                                }else{
-                                  this.setTree = [];
-                                }
-                            })
-
-                            return 
+                //加载用户公司信息
+                this.$http.post(this.api.user_company_list,{
+                  user_token:tk,
+                  user_query:"user_id=='"+uid+"'"
+                }).then((res)=>{
+                  // console.log(res);
+                  for(var i = 0;i < res.values.length; i++){
+                    if(res.values[i].name == this.companyname){
+                      //如果用户公司列表名字跟这个值对应
+                      this.cid = res.values[i].company_id;//修改对应公司id
+                      //调取对应公司信息
+                      this.$http.post(this.api.company_infor+'('+this.cid+')',{
+                      }).then((res)=>{
+                        // console.log(res);
+                        if(res.value.ctree != null){
+                          //如果有公司树信息 把树存起来
+                            this.setTree = JSON.parse(res.value.ctree);
+                          }else{
+                            this.setTree = [];
                           }
-                        }
-                      }
+                      })
                     }
-                  );
+                  }
+                })
+                
             },
             getcompanylist(){
                 var tk = localStorage.getItem("token");
                 var uid = localStorage.getItem("uid");
                
-
-                this.$http({
-                    url:'http://39.106.9.139/apis/restful/list/_account/user_company',
-                    method:'POST',
-                    headers: {
-                      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                    },
-                    data:Qs.stringify({
-                      user_token:tk,
-                      user_query:"user_id=='"+uid+"'"
-                    })
-                  }).then(
-                    res =>{
-                      // console.log(res);
-                      // console.log(res.data.values.length);
-                      if(res.data.values.length > 0){
-                        for(var i = 0;i < res.data.values.length;i++){
-                          this.form.company.push({
-                            "value":res.data.values[i].name,
-                            "label":res.data.values[i].name
-                          });
-                        }
-                        this.value = res.data.values[0].name;
-                        this.companyname = res.data.values[0].name;
-                        this.cid = res.data.values[0].company_id;
-
-                        this.$http({
-                          url:'http://39.106.9.139/apis/restful/get/_company/company('+this.cid+')?',
-                          method:'POST',
-                          headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                          },
-                          data:Qs.stringify({
-                            
-                          })
-                        }).then(
-                          res =>{
-                            console.log(res);
-                            if(res.data.value.ctree != null){
-                              this.setTree = JSON.parse(res.data.value.ctree);
-                            }
-                        })
-                        
-                      }
-                      
+                //加载用户公司信息
+                this.$http.post(this.api.user_company_list,{
+                  user_token:tk,
+                  user_query:"user_id=='"+uid+"'"
+                }).then((res)=>{
+                  // console.log(res);
+                  //判断用户是否有公司
+                  if(res.values.length > 0){
+                    for(var i = 0;i < res.values.length;i++){
+                      this.form.company.push({
+                        "value":res.values[i].name,
+                        "label":res.values[i].name
+                      });
                     }
-                  );
+                    this.value = res.values[0].name;//下拉框显示公司名字
+                    this.companyname = res.values[0].name;//把当前公司名
+                    this.cid = res.values[0].company_id;//把当前公司id
+
+                    this.$http.post(this.api.company_infor+'('+this.cid+')',{
+                    }).then((res)=>{
+                      // console.log(res);
+                      if(res.value.ctree != null){
+                        //如果有公司树信息 把树存起来
+                          this.setTree = JSON.parse(res.value.ctree);
+                        }
+                    })
+                    
+                  }
+                })
             }
         },
         mounted(){

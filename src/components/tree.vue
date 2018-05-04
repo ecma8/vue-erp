@@ -91,59 +91,115 @@ import Qs from 'qs';
     mounted(){
       // console.log(api)
       this.initExpand()
-    },
+    },    
+
     methods: {
       onSubmit() {
         var uid = localStorage.getItem("uid");
         var tk = localStorage.getItem("token");
 
-        this.$http({
-            url:'http://39.106.9.139/apis/restful/list/_account/user',
-            method:'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-            },
-            data:Qs.stringify({
-              user_token:tk
-            })
-          }).then(
-            res =>{
-              // console.log(res);
-              for(var i = 0;i < res.data.values.length;i++){
-                if(res.data.values[i].username == this.form.name){
-                  this.suid = res.data.values[i].id;
-                  // console.log(this.suid)
-                  if(this.staff_id){
-                    this.$http({
-                      url:'http://39.106.9.139/apis/restful/add/_linked/company_staff_to_user',
-                      method:'POST',
-                      headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                      },
-                      data:Qs.stringify({
-                        user_id:this.suid,
-                        company_id:this.cid,
-                        staff_id:this.staff_id
-                      })
-                    }).then(
-                      res =>{
-                        console.log(res);
-                        if(res.data.is_success){
-                        }
-                      })
+        //加载用户公司信息
+        this.$http.post(this.api.user_list,{
+          user_token:tk,
+          user_query:"username=='"+this.form.name+"'"
+        }).then((res)=>{
+          if(res.values.length > 0){
+            this.suid = res.values[0].id;
+            if(this.staff_id){
+              //往link表里加信息
+              this.$http.post(this.api.link_company_staff_to_user,{
+                user_id:this.suid,
+                company_id:this.cid,
+                staff_id:this.staff_id
+              }).then((res)=>{
+                //往信息表里加信息
+                this.$http.post(this.api.message_company_staff_link,{
+                  user_id:this.suid,
+                  company_id:this.cid,
+                  staff_id:this.staff_id,
+                  status:"wait"
+                }).then((res)=>{
+                  
+                })
+              })
+            }else{
+              this.$message.error("请点击要绑定的员工")
+            }
+          }else{
+            this.$message.error("该用户不存在");
+          }
 
-                  }else{
-                    this.$message.error("请点击要绑定的员工")
-                  }
+        })
 
-                  return;
 
-                }else{
-                  this.$message.error("不存在该用户")
+        // this.$http({
+        //     url:'http://39.106.9.139/apis/restful/list/_account/user',
+        //     method:'POST',
+        //     headers: {
+        //       'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        //     },
+        //     data:Qs.stringify({
+        //       user_token:tk
+        //     })
+        //   }).then(
+        //     res =>{
+        //       // console.log(res);
+        //       return;
+        //       for(var i = 0;i < res.data.values.length;i++){
+        //         if(res.data.values[i].username == this.form.name){
+        //           this.suid = res.data.values[i].id;
+        //           // console.log(this.suid)
+        //           if(this.staff_id){
+        //             this.$http({
+        //               url:'http://39.106.9.139/apis/restful/add/_linked/company_staff_to_user',
+        //               method:'POST',
+        //               headers: {
+        //                 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        //               },
+        //               data:Qs.stringify({
+        //                 user_id:this.suid,
+        //                 company_id:this.cid,
+        //                 staff_id:this.staff_id
+        //               })
+        //             }).then(
+        //               res =>{
+        //                 console.log(res);
+        //                 if(res.data.is_success){
+        //                   //发送信息
+        //                   this.$http({
+        //                     url:'http://39.106.9.139/apis/restful/add/_message/company_staff_link',
+        //                     method:'POST',
+        //                     headers: {
+        //                       'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        //                     },
+        //                     data:Qs.stringify({
+        //                       user_id:this.suid,
+        //                       company_id:this.cid,
+        //                       staff_id:this.staff_id,
+        //                       status:"wait"
+        //                     })
+        //                   }).then(
+        //                     res =>{
+        //                       console.log(res);
+        //                       if(res.data.is_success){
+                                
+        //                       }
+        //                     })
+        //                 }
+        //               })
 
-                }
-              }
-            })
+        //           }else{
+        //             this.$message.error("请点击要绑定的员工")
+        //           }
+                  
+        //           return;
+                
+        //         }else{
+        //           this.$message.error("不存在该用户")
+                
+        //         }
+        //       }
+        //     })
 
       },
       initExpand(){
@@ -158,22 +214,27 @@ import Qs from 'qs';
         this.sf_name = d.name;
         this.staff_id = d.id;
 
-        this.$http({
-          url:'http://39.106.9.139/apis/restful/set/_company/company('+this.cid+')?',
-          method:'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-          },
-          data:Qs.stringify({
-            ctree:JSON.stringify(this.setTree)
-          })
-        }).then(
-          res =>{
-            // console.log(res);
-            if(res.data.is_success){
-            }
-          })
+        this.$http.post(this.api.company_set_infor+'('+this.cid+')',{
+          ctree:JSON.stringify(this.setTree)
+        }).then((res)=>{
+        })
 
+        // this.$http({
+        //   url:'http://39.106.9.139/apis/restful/set/_company/company('+this.cid+')?',
+        //   method:'POST',
+        //   headers: {
+        //     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        //   },
+        //   data:Qs.stringify({
+        //     ctree:JSON.stringify(this.setTree)
+        //   })
+        // }).then(
+        //   res =>{
+        //     // console.log(res);
+        //     if(res.data.is_success){
+        //     }
+        //   })
+      
       },
       renderContent(h,{node,data,store}){//加载节点
         let that = this;
@@ -204,113 +265,125 @@ import Qs from 'qs';
       handleAdd(s,d,n){//增加节点
         var tk = localStorage.getItem("token");
         var uid = localStorage.getItem("uid");
-
+        
         // console.log(this.setTree);
         if(n.level >=6){
           this.$message.error("最多只支持五级！")
           return false;
         }
+        
+        this.$http.post('http://39.106.9.139/apis/restful/add/company.'+this.cid+'/staff',{
+          staff_name:"",
+          staff_info:"1"
+        }).then((res)=>{
+          // console.log(res);
+          //添加数据
+          d.children.push({
+            id: res.value.id,
+            name: '员工',
+            pid: d.id,
+            isEdit: false,
+            children: []
+          });
+          //展开节点
+          if(!n.expanded){ 
+            n.expanded = true;
+          }
+          //修改公司树
+          this.$http.post(this.api.company_set_infor+'('+this.cid+')',{
+            ctree:JSON.stringify(this.setTree)
+          }).then((res)=>{
+          })
+        })
 
+        // this.$http({
+        //     url:'http://39.106.9.139/apis/restful/add/company.'+this.cid+'/staff',
+        //     method:'POST',
+        //     headers: {
+        //       'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        //     },
+        //     data:Qs.stringify({
+        //       staff_name:"",
+        //       staff_info:"1"
+        //     })
+        //   }).then(
+        //     res =>{
+              
+        //       d.children.push({
+        //         id: res.data.value.id,
+        //         name: '员工',
+        //         pid: d.id,
+        //         isEdit: false,
+        //         children: []
+        //       });
+              
+        //       if(!n.expanded){ 
+        //         n.expanded = true;
+        //       }
 
-        this.$http({
-            url:'http://39.106.9.139/apis/restful/add/company.'+this.cid+'/staff',
-            method:'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-            },
-            data:Qs.stringify({
-              staff_name:"",
-              staff_info:"1"
-            })
-          }).then(
-            res =>{
-              // console.log(res.data.value.id);
-              //添加数据
-              d.children.push({
-                id: res.data.value.id,
-                name: '员工',
-                pid: d.id,
-                isEdit: false,
-                children: []
-              });
-              //展开节点
-              if(!n.expanded){
-                n.expanded = true;
-              }
+        //       this.$http({
+        //         url:'http://39.106.9.139/apis/restful/set/_company/company('+this.cid+')?',
+        //         method:'POST',
+        //         headers: {
+        //           'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        //         },
+        //         data:Qs.stringify({
+        //           ctree:JSON.stringify(this.setTree)
+        //         })
+        //       }).then(
+        //         res =>{
+                  
+        //           if(res.data.is_success){
+        //           }
+        //         })
+        //     }
+        //   ); 
 
-              this.$http({
-                url:'http://39.106.9.139/apis/restful/set/_company/company('+this.cid+')?',
-                method:'POST',
-                headers: {
-                  'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                },
-                data:Qs.stringify({
-                  ctree:JSON.stringify(this.setTree)
-                })
-              }).then(
-                res =>{
-                  // console.log(res);
-                  if(res.data.is_success){
-                  }
-                })
-            }
-          );
-
-
+        
 
       },
       handleEdit(s,d,n){//编辑节点
-
-
+        
+        
         var tk = localStorage.getItem("token");
+
+
         // this.$http({
-        //   url:'http://39.106.9.139/apis/restful/set/_company/company('+this.cid+')?',
-        //   method:'POST',
-        //   headers: {
-        //     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-        //   },
-        //   data:Qs.stringify({
-        //     ctree:JSON.stringify(this.setTree)
-        //   })
-        // }).then(
-        //   res =>{
-        //     // console.log(res);
-        //     if(res.data.is_success){
-        //     }
-        //   })
+        //     url:'http://39.106.9.139/apis/restful/add/company.'+this.cid+'/staff',
+        //     method:'POST',
+        //     headers: {
+        //       'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        //     },
+        //     data:Qs.stringify({
+        //       staff_name:"",
+        //       staff_info:"1",
+        //       linked_user_id:""
+        //     })
+        //   }).then(
+        //     res =>{
+              
+              //修改公司树
+              this.$http.post(this.api.company_set_infor+'('+this.cid+')',{
+                ctree:JSON.stringify(this.setTree)
+              }).then((res)=>{
+              })
 
-        this.$http({
-            url:'http://39.106.9.139/apis/restful/add/company.'+this.cid+'/staff',
-            method:'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-            },
-            data:Qs.stringify({
-              staff_name:"",
-              staff_info:"1",
-              linked_user_id:""
-            })
-          }).then(
-            res =>{
-              // console.log(res.data.value.id);
-
-              this.$http({
-                url:'http://39.106.9.139/apis/restful/set/_company/company('+this.cid+')?',
-                method:'POST',
-                headers: {
-                  'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                },
-                data:Qs.stringify({
-                  ctree:JSON.stringify(this.setTree)
-                })
-              }).then(
-                res =>{
-                  // console.log(res);
-                  if(res.data.is_success){
-                  }
-                })
-            }
-          );
+              // this.$http({
+              //   url:'http://39.106.9.139/apis/restful/set/_company/company('+this.cid+')?',
+              //   method:'POST',
+              //   headers: {
+              //     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+              //   },
+              //   data:Qs.stringify({
+              //     ctree:JSON.stringify(this.setTree)
+              //   })
+              // }).then(
+              //   res =>{
+              //     if(res.data.is_success){
+              //     }
+              //   })
+          //   }
+          // ); 
 
       },
       handleDelete(s,d,n){//删除节点
@@ -349,40 +422,46 @@ import Qs from 'qs';
             })
           }
           //判断是否新增
-          d.id > this.non_maxexpandId ? delNode() : isDel()
+          d.id > this.non_maxexpandId ? delNode() : isDel() 
         }
 
-        this.$http({
-            url:'http://39.106.9.139/apis/restful/add/company.'+this.cid+'/staff',
-            method:'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-            },
-            data:Qs.stringify({
-              staff_name:"",
-              staff_info:"1"
-            })
-          }).then(
-            res =>{
+        // this.$http({
+        //     url:'http://39.106.9.139/apis/restful/add/company.'+this.cid+'/staff',
+        //     method:'POST',
+        //     headers: {
+        //       'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        //     },
+        //     data:Qs.stringify({
+        //       staff_name:"",
+        //       staff_info:"1"
+        //     })
+        //   }).then(
+        //     res =>{
               // console.log(res.data.value.id);
+              
+              //修改公司树
+              this.$http.post(this.api.company_set_infor+'('+this.cid+')',{
+                ctree:JSON.stringify(this.setTree)
+              }).then((res)=>{
+              })
 
-              this.$http({
-                url:'http://39.106.9.139/apis/restful/set/_company/company('+this.cid+')?',
-                method:'POST',
-                headers: {
-                  'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                },
-                data:Qs.stringify({
-                  ctree:JSON.stringify(this.setTree)
-                })
-              }).then(
-                res =>{
-                  // console.log(res);
-                  if(res.data.is_success){
-                  }
-                })
-            }
-          );
+              // this.$http({
+              //   url:'http://39.106.9.139/apis/restful/set/_company/company('+this.cid+')?',
+              //   method:'POST',
+              //   headers: {
+              //     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+              //   },
+              //   data:Qs.stringify({
+              //     ctree:JSON.stringify(this.setTree)
+              //   })
+              // }).then(
+              //   res =>{
+                  
+              //     if(res.data.is_success){
+              //     }
+              //   })
+          //   }
+          // ); 
 
 
       },
@@ -391,7 +470,7 @@ import Qs from 'qs';
         d.isEdit = false;
       }
     }
-
+    
   }
 </script>
 
