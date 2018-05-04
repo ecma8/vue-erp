@@ -24,11 +24,5 @@
   }
 </style>
 <script>
-  export default {
-    mounted(){
-      this.$http.get(this.api.nav,{params: { 'key': 'value'}}).then((res)=>{
-        console.log(res);
-      })
-    }
-  }
+
 </script>

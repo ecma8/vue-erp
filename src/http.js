@@ -2,11 +2,11 @@ import axios from 'axios'
 import qs from 'qs'
 import {Message, Loading} from 'element-ui'
 
-axios.defaults.baseURL = 'http://api.ecma8.com/sss';
-
+axios.defaults.baseURL = 'http://39.106.9.139/apis';
 let loadinginstace;
 axios.interceptors.request.use(config => {
   loadinginstace = Loading.service({fullscreen: true});
+  console.log('xxx');
   if (config.method === 'post') {
     config.data = qs.stringify(config.data)
   }
@@ -21,7 +21,7 @@ axios.interceptors.request.use(config => {
 axios.interceptors.response.use(data => {
   loadinginstace.close();
   Message.success({
-    message: data.data.msg
+    message: data.data.message
   });
   return data.data
 }, error => {
