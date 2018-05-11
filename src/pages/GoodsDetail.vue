@@ -197,6 +197,24 @@
         </el-radio-group>
       </el-form-item>
       <el-form-item>
+        <template>
+          <template v-for="(tag,index) in variantBtnList">
+            <el-button @click="changeDataList(index)">
+              {{tag}}
+            </el-button>
+            <el-tag
+              closable
+              :key="tag"
+              @close = "closeTag(index)"
+            >
+              {{tag}}
+
+            </el-tag>
+          </template>
+        </template>
+        <div>
+          <el-button @click="dialogVariantVisible = true">添加变体</el-button>
+        </div>
         <el-table
           ref="singleTable"
           :data="tableData1"
@@ -236,14 +254,14 @@
           </el-table-column>
           <el-table-column label="操作">
             <template slot-scope="scope">
-              <el-button size="mini">删除</el-button>
+              <el-button size="mini" @click="delRow(scope.$index)">删除</el-button>
             </template>
           </el-table-column>
           <el-table-column
             property="selectPicture"
             label="选择图片">
             <template slot-scope="scope">
-              <el-button size="mini" @click="dialogFormVisible = true">选择图片</el-button>
+              <el-button size="mini" @click="selectImg(scope.$index,dialogFormVisible = true)">选择图片</el-button>
             </template>
           </el-table-column>
           <el-table-column
@@ -273,9 +291,32 @@
       </div>
     </el-dialog>
     <el-dialog title="变体设置" :visible.sync="dialogVariantVisible">
+      <h3>变体名称:</h3>
+      <div>
+        <el-select v-model="variantSelectOption" placeholder="请选择活动区域" @change="getVariantSelect()">
+
+          <el-option :label="item.label+(item.name)" :key="item.name" :value="item.value" v-for="(item,index) in variantOptionList">
+
+          </el-option>
+        </el-select>
+      </div>
+      <h3>变体值:(多个值用逗号隔开如:red,white,black)</h3>
+      <div>
+        <el-input type="texteara" v-model="variantText">
+
+        </el-input>
+      </div>
+      <div>
+        <span>
+          推荐
+        </span>
+        <span style="padding: 0 3px;cursor: pointer" v-for="(item,index) in variantList[variantSelectOption].recommend"
+              v-text="item.name" @click="putText(item)">
+        </span>
+      </div>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogVariantVisible = false">取 消</el-button>
-        <el-button type="primary" @click="saveSelectImg(dialogVariantVisible = false)">确 定</el-button>
+        <el-button type="primary" @click="saveSelectVariant(dialogVariantVisible = false)">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -284,11 +325,189 @@
   export default {
     data() {
       return {
+        variantOptionList: [
+          {
+            label:'Color',
+            name:'颜色',
+            value:'0',
+          },
+          {
+            label:'SizeName',
+            value:'1',
+            name:'尺寸'
+          },
+          {
+            label:'ItemPackageQuantity',
+            value:'2',
+            name:'容量'
+          },
+          {
+            label:'Material',
+            value:'3',
+            name:'材质'
+          }
+        ],
+        variantText: '',
+        variantSelectOption: 0,
+        variantBtnList: [],
+        variantList: [
+          {
+            recommend: [
+              {
+                name: '米色',
+                english: 'Beige'
+              },
+              {
+                name: '黑色',
+                english: 'Black'
+              },
+              {
+                name: '蓝色',
+                english: 'Blue'
+              },
+              {
+                name: '青铜',
+                english: 'Bronze'
+              }
+              ,
+              {
+                name: '棕色',
+                english: 'Brown'
+              }
+              ,
+              {
+                name: '明确',
+                english: 'Clear'
+              }
+              ,
+              {
+                name: '铜',
+                english: 'Copper'
+              }
+              ,
+              {
+                name: '奶油',
+                english: 'Cream'
+              },
+              {
+                name: '金',
+                english: 'Gold'
+              },
+              {
+                name: '绿色',
+                english: 'Green'
+              },
+              {
+                name: '灰色',
+                english: 'Grey'
+              },
+              {
+                name: '金属',
+                english: 'Metallic'
+              },
+              {
+                name: '多色',
+                english: 'Multi-colored'
+              },
+              {
+                name: '橙子',
+                english: 'Pink'
+              },
+              {
+                name: '粉',
+                english: 'Black'
+              },
+              {
+                name: '黑色',
+                english: 'Black'
+              },
+              {
+                name: '黑色',
+                english: 'Black'
+              },
+              {
+                name: '黑色',
+                english: 'Black'
+              },
+              {
+                name: '黑色',
+                english: 'Black'
+              },
+              {
+                name: '单色',
+                english: 'OneColor'
+              },
+              {
+                name: 'A - C',
+                english: 'A,B,C'
+              },
+              {
+                name: 'A - L',
+                english: 'A,B,C,D,E,'
+              },
+              {
+                name: 'A - L',
+                english: 'A,B,C,D,E,F,G,H,I,J,K,L'
+              },
+            ]
+          },
+          {
+            recommend: [
+              {
+                name: 'OneSize',
+                english: 'OneSize'
+              },
+              {
+                name: 'XS',
+                english: 'XS'
+              },
+              {
+                name: 'S',
+                english: 'S'
+              },
+              {
+                name: 'X',
+                english: 'X'
+              }
+              ,
+              {
+                name: 'XL',
+                english: 'XL'
+              }
+              ,
+              {
+                name: 'XXL',
+                english: 'XXL'
+              }
+              ,
+              {
+                name: 'XXXL',
+                english: 'XXXL'
+              }
+              ,
+              {
+                name: 'XXXXL',
+                english: 'XXXXL'
+              },
+              {
+                name: 'XXXXXL',
+                english: 'XXXXXL'
+              }
+            ]
+          },
+          {
+            recommend: []
+          },
+          {
+            recommend: []
+          }
+        ],
+        variantId: '0',
+        variantTagId:'0',
         activeName: '1',
         activeLabel: '中文',
         dialogFormVisible: false,
         dialogVariantVisible: true,
-        variantId: '0',
         fileList: [{
           name: 'food.jpeg',
           url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'
@@ -324,21 +543,10 @@
             status: false,
           },
         ],
-        tableData1: [
-          {
-            variant: '',
-            sku: '',
-            stock: '',
-            upc: '',
-            selectPicture: '',
-            selectedPictures: '',
-            imgList: [
-              {
-                imgSrc: ''
-              }
-            ]
-          }
+        variantArr: [
+
         ],
+        tableData1:[],
         form: {
           name: '',
           region: '',
@@ -379,6 +587,9 @@
       }
     },
     methods: {
+      selectImg(id) {
+        this.variantId = id
+      },
       onSubmit() {
         console.log('submit!');
       },
@@ -394,18 +605,72 @@
       changeSelectImg(item, index) {
         this.goodsImgList[index].status = !this.goodsImgList[index].status;
       },
+      getVariantSelect() {
+        this.variantText = ''
+      },
       saveSelectImg() {
-        this.tableData1[0].imgList = [];
+        let id = this.variantId;
+        this.tableData1[id].imgList = [];
         this.goodsImgList.map((item) => {
           if (item.status) {
-            this.tableData1[0].imgList.push({imgSrc: item.imgSrc});
-            console.log(this.tableData1[0]);
+            this.tableData1[id].imgList.push({imgSrc: item.imgSrc});
+            console.log(this.tableData1[id]);
             item.status = false;
           }
           else {
 
           }
         })
+      },
+      delRow(index) {
+        this.tableData1.splice(index, 1);
+      },
+      putText(item) {
+        this.variantText += item.english + ','
+      },
+      saveSelectVariant() {
+        this.variantTagId = this.variantId;
+        if(this.variantBtnList.indexOf(this.variantOptionList[this.variantSelectOption].name)>-1)
+        {
+          return false;
+        }else{
+          this.variantBtnList.push(this.variantOptionList[this.variantSelectOption].name);
+          let arr = this.variantText.split(',');
+          let newArr = arr.slice(0, arr.length - 1);
+          let dataArr = [];
+          newArr.map((item) => {
+            dataArr.push({
+              variant: item,
+              sku: '',
+              stock: '',
+              upc: '',
+              selectPicture: '',
+              selectedPictures: '',
+              imgList: []
+            });
+            return item;
+          });
+          this.variantArr.push({data:dataArr});
+          this.tableData1 = this.variantArr[this.variantBtnList.length-1].data;
+        }
+      },
+      closeTag(index){
+        alert(index);
+        console.log(this.variantArr);
+        this.variantArr.splice(index,1);
+        this.variantBtnList.splice(index,1);
+        if(this.variantArr<=0)
+        {
+          this.tableData1 = [];
+        }else{
+          this.tableData1 = this.variantArr[this.variantBtnList.length-1].data;
+        }
+      },
+      changeDataList(index){
+        this.dialogVariantVisible = true;
+        this.variantSelectOption = index;
+        this.variantTagId = index;
+        this.tableData1 = this.variantArr[index].data
       }
     }
   }
