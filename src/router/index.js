@@ -1,10 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import App from '../App'
-import echarts from 'echarts';
 
 Vue.use(Router);
-Vue.prototype.$echarts = echarts
 
 //require路由按需加载
 const main = r => require.ensure([], () => r(require('../pages/Main')), 'main');
@@ -46,6 +44,7 @@ const Warehouse = r => require.ensure([], () => r(require('../pages/Warehouse'))
 const Company_add = r => require.ensure([], () => r(require('../pages/Company_add')), 'Company_add');
 const Message = r => require.ensure([], () => r(require('../pages/Message')), 'Message');
 const GoodsDetail = r => require.ensure([], () => r(require('../pages/GoodsDetail')), 'goodsDetail');
+const NewProductChart = r => require.ensure([], () => r(require('../pages/NewProductChart')), 'newProductChart');
 
 export default new Router({
   routes: [
@@ -67,6 +66,9 @@ export default new Router({
         }, {
           path: 'goodsDetail',
           component: GoodsDetail,
+        }, {
+          path: 'newProductChart',
+          component: NewProductChart,
         }, {
           path: 'G_user_edit',
           component: G_user_edit,
